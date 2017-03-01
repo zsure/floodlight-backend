@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete element from project &apos;floodlight&apos;&#x0A;- Original project: &apos;floodlight&apos;&#x0A;- Original element: &apos;floodlight/src/main/java/eu.netide.lib.netip&apos;" description="Delete element" element1="/src\/main\/java&lt;eu.netide.lib.netip" element2="/src\/main\/java&lt;eu.netide.lib" element3="/src\/main\/java&lt;eu.netide" element4="/src\/main\/java&lt;eu" elements="4" flags="589830" id="org.eclipse.jdt.ui.delete" resources="0" stamp="1488336015254" subPackages="false" version="1.0"/>
+</session>
