@@ -1,0 +1,120 @@
+/*** Eclipse Class Decompiler plugin, copyright (c) 2016 Chen Chao (cnfree2000@hotmail.com) ***/
+package org.projectfloodlight.openflow.protocol;
+
+import java.util.List;
+import java.util.Set;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.projectfloodlight.openflow.protocol.action.OFAction;
+import org.projectfloodlight.openflow.protocol.instruction.OFInstruction;
+import org.projectfloodlight.openflow.protocol.match.Match;
+import org.projectfloodlight.openflow.types.OFBufferId;
+import org.projectfloodlight.openflow.types.OFGroup;
+import org.projectfloodlight.openflow.types.OFPort;
+import org.projectfloodlight.openflow.types.TableId;
+import org.projectfloodlight.openflow.types.U64;
+
+public abstract interface OFFlowMod extends OFObject, OFMessage {
+	public abstract OFVersion getVersion();
+
+	public abstract OFType getType();
+
+	public abstract long getXid();
+
+	public abstract U64 getCookie();
+
+	public abstract U64 getCookieMask() throws UnsupportedOperationException;
+
+	public abstract TableId getTableId() throws UnsupportedOperationException;
+
+	public abstract OFFlowModCommand getCommand();
+
+	public abstract int getIdleTimeout();
+
+	public abstract int getHardTimeout();
+
+	public abstract int getPriority();
+
+	public abstract OFBufferId getBufferId();
+
+	public abstract OFPort getOutPort();
+
+	public abstract OFGroup getOutGroup() throws UnsupportedOperationException;
+
+	public abstract Set<OFFlowModFlags> getFlags();
+
+	public abstract Match getMatch();
+
+	public abstract List<OFInstruction> getInstructions() throws UnsupportedOperationException;
+
+	public abstract List<OFAction> getActions() throws UnsupportedOperationException;
+
+	public abstract void writeTo(ChannelBuffer paramChannelBuffer);
+
+	public abstract Builder createBuilder();
+
+	public static abstract interface Builder extends OFMessage.Builder {
+		public abstract OFFlowMod build();
+
+		public abstract OFVersion getVersion();
+
+		public abstract OFType getType();
+
+		public abstract long getXid();
+
+		public abstract Builder setXid(long paramLong);
+
+		public abstract U64 getCookie();
+
+		public abstract Builder setCookie(U64 paramU64);
+
+		public abstract U64 getCookieMask() throws UnsupportedOperationException;
+
+		public abstract Builder setCookieMask(U64 paramU64) throws UnsupportedOperationException;
+
+		public abstract TableId getTableId() throws UnsupportedOperationException;
+
+		public abstract Builder setTableId(TableId paramTableId) throws UnsupportedOperationException;
+
+		public abstract OFFlowModCommand getCommand();
+
+		public abstract int getIdleTimeout();
+
+		public abstract Builder setIdleTimeout(int paramInt);
+
+		public abstract int getHardTimeout();
+
+		public abstract Builder setHardTimeout(int paramInt);
+
+		public abstract int getPriority();
+
+		public abstract Builder setPriority(int paramInt);
+
+		public abstract OFBufferId getBufferId();
+
+		public abstract Builder setBufferId(OFBufferId paramOFBufferId);
+
+		public abstract OFPort getOutPort();
+
+		public abstract Builder setOutPort(OFPort paramOFPort);
+
+		public abstract OFGroup getOutGroup() throws UnsupportedOperationException;
+
+		public abstract Builder setOutGroup(OFGroup paramOFGroup) throws UnsupportedOperationException;
+
+		public abstract Set<OFFlowModFlags> getFlags();
+
+		public abstract Builder setFlags(Set<OFFlowModFlags> paramSet);
+
+		public abstract Match getMatch();
+
+		public abstract Builder setMatch(Match paramMatch);
+
+		public abstract List<OFInstruction> getInstructions() throws UnsupportedOperationException;
+
+		public abstract Builder setInstructions(List<OFInstruction> paramList) throws UnsupportedOperationException;
+
+		public abstract List<OFAction> getActions() throws UnsupportedOperationException;
+
+		public abstract Builder setActions(List<OFAction> paramList) throws UnsupportedOperationException;
+	}
+}

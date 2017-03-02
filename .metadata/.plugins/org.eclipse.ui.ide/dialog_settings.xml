@@ -5,6 +5,9 @@
 		<item value="false" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
 		<item value="false" key="WizardProjectsImportPage.STORE_ARCHIVE_SELECTED"/>
 		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
+			<item value="/home/zhaoshuo/Documents/floodlight-backend/floodlight-1.1.learning"/>
+			<item value="/home/zhaoshuo/Downloads/floodlight-1.1"/>
+			<item value="/home/zhaoshuo/Documents/floodlight-1 (copy).1"/>
 			<item value="/home/zhaoshuo/Documents/floodlight-1.1"/>
 		</list>
 		<list key="WizardProjectsImportPage.STORE_ARCHIVES">

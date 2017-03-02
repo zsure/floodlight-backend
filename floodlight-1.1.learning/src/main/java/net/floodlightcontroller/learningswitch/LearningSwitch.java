@@ -69,6 +69,7 @@ import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.types.MacAddress;
 import org.projectfloodlight.openflow.types.OFBufferId;
 import org.projectfloodlight.openflow.types.OFPort;
+import org.projectfloodlight.openflow.types.OFValueType;
 import org.projectfloodlight.openflow.types.OFVlanVidMatch;
 import org.projectfloodlight.openflow.types.U64;
 import org.projectfloodlight.openflow.types.VlanVid;
@@ -104,6 +105,7 @@ implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
 	protected static short FLOWMOD_DEFAULT_IDLE_TIMEOUT = 5; // in seconds
 	protected static short FLOWMOD_DEFAULT_HARD_TIMEOUT = 0; // infinite
 	protected static short FLOWMOD_PRIORITY = 100;
+
 
 	// for managing our map sizes
 	protected static final int MAX_MACS_PER_SWITCH  = 1000;
@@ -244,6 +246,7 @@ implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
 		} else {
 			fmb = sw.getOFFactory().buildFlowAdd();
 		}
+		
 		fmb.setMatch(match);
 		fmb.setCookie((U64.of(LearningSwitch.LEARNING_SWITCH_COOKIE)));
 		fmb.setIdleTimeout(LearningSwitch.FLOWMOD_DEFAULT_IDLE_TIMEOUT);
@@ -320,8 +323,8 @@ implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
 
 		// set actions
 		List<OFAction> actions = new ArrayList<OFAction>();
-		actions.add(sw.getOFFactory().actions().buildOutput().setPort(outport).setMaxLen(0xffFFffFF).build());
-
+//		actions.add(sw.getOFFactory().actions().buildOutput().setPort(outport).setMaxLen(0xffFFffFF).build());
+		actions.add(sw.getOFFactory().actions().buildOutput().setPort(outport).setMaxLen(0xffFFffE5).build());
 		pob.setActions(actions);
 
 		// If the switch doens't support buffering set the buffer id to be none
@@ -362,7 +365,8 @@ implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
 
 		// set actions
 		List<OFAction> actions = new ArrayList<OFAction>(1);
-		actions.add(sw.getOFFactory().actions().buildOutput().setPort(egressPort).setMaxLen(0xffFFffFF).build());
+		actions.add(sw.getOFFactory().actions().buildOutput().setPort(egressPort).setMaxLen(0xffFFffE5).build());
+        //actions.add(sw.getOFFactory().actions().buildOutput().setPort(egressPort).setMaxLen(0xffFFffFF).build());
 		pob.setActions(actions);
 
 		// set data - only if buffer_id == -1
@@ -382,6 +386,8 @@ implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
 		// We need to add in specifics for the hosts we're routing between.
 		Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 		VlanVid vlan = VlanVid.ofVlan(eth.getVlanID());
+	
+//         MacAddress srcMac = MacAddress.NONE;
 		MacAddress srcMac = eth.getSourceMACAddress();
 		MacAddress dstMac = eth.getDestinationMACAddress();
 
@@ -436,7 +442,8 @@ implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
 			// If source MAC is a unicast address, learn the port for this MAC/VLAN
 			this.addToPortMap(sw, sourceMac, vlan, inPort);
 		}
-
+		
+		
 		// Now output flow-mod and/or packet
 		OFPort outPort = getFromPortMap(sw, destMac, vlan);
 		if (outPort == null) {
@@ -462,7 +469,8 @@ implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
 			// NW_SRC and NW_DST as well
 			// We write FlowMods with Buffer ID none then explicitly PacketOut the buffered packet
 			this.pushPacket(sw, m, pi, outPort);
-			this.writeFlowMod(sw, OFFlowModCommand.ADD, OFBufferId.NO_BUFFER, m, outPort);
+			this.writeFlowMod(sw, OFFlowModCommand.ADD, OFBufferId.NO_BUFFER, m, OFPort.FLOOD);
+			/*this.writeFlowMod(sw, OFFlowModCommand.ADD, OFBufferId.NO_BUFFER, m, outPort);
 			if (LEARNING_SWITCH_REVERSE_FLOW) {
 				Match.Builder mb = m.createBuilder();
 				mb.setExact(MatchField.ETH_SRC, m.get(MatchField.ETH_DST))                         
@@ -473,7 +481,7 @@ implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
 				}
 
 				this.writeFlowMod(sw, OFFlowModCommand.ADD, OFBufferId.NO_BUFFER, mb.build(), inPort);
-			}
+			}*/
 		}
 		return Command.CONTINUE;
 	}
