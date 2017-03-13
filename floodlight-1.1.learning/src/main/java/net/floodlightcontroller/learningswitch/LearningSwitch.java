@@ -104,7 +104,9 @@ implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
 	// more flow-mod defaults
 	protected static short FLOWMOD_DEFAULT_IDLE_TIMEOUT = 5; // in seconds
 	protected static short FLOWMOD_DEFAULT_HARD_TIMEOUT = 0; // infinite
-	protected static short FLOWMOD_PRIORITY = 100;
+	protected static int FLOWMOD_PRIORITY = 32768;
+	
+	
 
 
 	// for managing our map sizes
@@ -253,7 +255,9 @@ implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
 		fmb.setHardTimeout(LearningSwitch.FLOWMOD_DEFAULT_HARD_TIMEOUT);
 		fmb.setPriority(LearningSwitch.FLOWMOD_PRIORITY);
 		fmb.setBufferId(bufferId);
-		fmb.setOutPort((command == OFFlowModCommand.DELETE) ? OFPort.ANY : outPort);
+		//fmb.setOutPort((command == OFFlowModCommand.DELETE) ? OFPort.ANY : outPort);
+		fmb.setOutPort(OFPort.ANY);
+		log.info("FLOWMOD_PRIORITY", LearningSwitch.FLOWMOD_PRIORITY);
 		Set<OFFlowModFlags> sfmf = new HashSet<OFFlowModFlags>();
 		if (command != OFFlowModCommand.DELETE) {
 			sfmf.add(OFFlowModFlags.SEND_FLOW_REM);
@@ -403,6 +407,26 @@ implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
 		return mb.build();
 	}
 
+	protected Match createMatchFromPacket1(IOFSwitch sw, OFPort inPort, FloodlightContext cntx) {
+		// The packet in match will only contain the port number.
+		// We need to add in specifics for the hosts we're routing between.
+		Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+		VlanVid vlan = VlanVid.ofVlan(eth.getVlanID());
+	
+//         MacAddress srcMac = MacAddress.NONE;
+		MacAddress srcMac = eth.getSourceMACAddress();
+		MacAddress dstMac = eth.getDestinationMACAddress();
+
+		Match.Builder mb = sw.getOFFactory().buildMatch();
+		mb.setExact(MatchField.IN_PORT, inPort)
+		.setExact(MatchField.ETH_DST, dstMac);
+
+		if (!vlan.equals(VlanVid.ZERO)) {
+			mb.setExact(MatchField.VLAN_VID, OFVlanVidMatch.ofVlanVid(vlan));
+		}
+
+		return mb.build();
+	}
 	/**
 	 * Processes a OFPacketIn message. If the switch has learned the MAC/VLAN to port mapping
 	 * for the pair it will write a FlowMod for. If the mapping has not been learned the
@@ -440,7 +464,9 @@ implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
 		}
 		if ((sourceMac.getLong() & 0x010000000000L) == 0) {
 			// If source MAC is a unicast address, learn the port for this MAC/VLAN
+			//sourceMac = MacAddress.NONE;
 			this.addToPortMap(sw, sourceMac, vlan, inPort);
+			
 		}
 		
 		
@@ -469,7 +495,8 @@ implements IFloodlightModule, ILearningSwitchService, IOFMessageListener {
 			// NW_SRC and NW_DST as well
 			// We write FlowMods with Buffer ID none then explicitly PacketOut the buffered packet
 			this.pushPacket(sw, m, pi, outPort);
-			this.writeFlowMod(sw, OFFlowModCommand.ADD, OFBufferId.NO_BUFFER, m, OFPort.FLOOD);
+			Match m1 = createMatchFromPacket1(sw, inPort, cntx);
+			this.writeFlowMod(sw, OFFlowModCommand.ADD, OFBufferId.NO_BUFFER, m1, OFPort.FLOOD);
 			/*this.writeFlowMod(sw, OFFlowModCommand.ADD, OFBufferId.NO_BUFFER, m, outPort);
 			if (LEARNING_SWITCH_REVERSE_FLOW) {
 				Match.Builder mb = m.createBuilder();

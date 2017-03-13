@@ -300,7 +300,7 @@ public class NetIdeModule implements IFloodlightModule, IOFSwitchListener, IOFMe
 				Relay.sendToCore(coreConnector, OFFactories.getFactory(msg.getVersion()).buildEchoReply()
 						.setXid(msg.getXid()).setData(((OFEchoRequest) msg).getData()).build(), datapathId, moduleId);  //self reply
 			} else {
-				/*try{
+		/*		try{
 					
 					logger.info("add new switch erro:OFType " + msg.getType());
 					Relay.sendToController(netIpVersion, coreConnector, floodlightProvider, managedSwitches.get(datapathId),
